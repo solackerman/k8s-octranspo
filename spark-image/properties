@@ -1,0 +1,12 @@
+spark.kubernetes.namespace default
+spark.kubernetes.driverEnv.GCS_PROJECT_ID octranspo-190317
+spark.kubernetes.driverEnv.GOOGLE_APPLICATION_CREDENTIALS /mnt/secrets/spark-sa.json
+spark.kubernetes.container.image gcr.io/cloud-solutions-images/spark:v2.3.0-gcs
+spark.kubernetes.driver.secrets.spark-sa  /mnt/secrets
+spark.kubernetes.executor.secrets.spark-sa /mnt/secrets
+spark.executorEnv.GCS_PROJECT_ID    octranspo-190317
+spark.executorEnv.GOOGLE_APPLICATION_CREDENTIALS /mnt/secrets/spark-sa.json
+spark.hadoop.google.cloud.auth.service.account.enable true
+spark.hadoop.google.cloud.auth.service.account.json.keyfile /mnt/secrets/spark-sa.json
+spark.hadoop.fs.gs.project.id octranspo-190317
+spark.hadoop.fs.gs.system.bucket octranspo-190317-spark-on-k8s

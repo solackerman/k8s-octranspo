@@ -1,0 +1,48 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  name: octranspo
+spec:
+  entrypoint: octranspo
+  templates:
+  - name: octranspo
+    steps:
+    - - name: next-bus-update
+        template: next-bus-update
+    - - name: spark-pi
+        template: spark-pi-cmd
+
+  - name: next-bus-update
+    container:
+      image: gcr.io/octranspo-190317/octranspo:latest
+      args: ["python", "run.py"]
+
+  - name: github-insights
+    container:
+      image: "gcr.io/octranspo-190317/spark-gcs:latest"
+      command: [sh, -c]
+      args: ["
+        /opt/spark/bin/spark-submit
+          --properties-file /opt/properties
+          --master k8s://https://104.197.141.161:443
+          --deploy-mode cluster
+          --name github-insights
+          --class spark.bigquery.example.github.NeedingHelpGoPackageFinder
+          --jars http://central.maven.org/maven2/com/databricks/spark-avro_2.11/4.0.0/spark-avro_2.11-4.0.0.jar
+          --conf spark.driver.cores=0.1
+          --conf spark.executor.instances=3
+          --conf spark.executor.cores=1
+          --conf spark.executor.memory=512m
+          gs://octranspo-190317-spark-on-k8s/jars/github-insights-1.0-SNAPSHOT-jar-with-dependencies.jar
+          octranspo-190317 spark_on_k8s octranspo-190317-spark-on-k8s --usesample
+      "]
+
+
+spark-submit \
+  --properties-file properties \
+  --deploy-mode cluster \
+  --class spark.bigquery.example.github.NeedingHelpGoPackageFinder \
+  --master k8s://https://104.197.141.161:443 \
+  --jars http://central.maven.org/maven2/com/databricks/spark-avro_2.11/4.0.0/spark-avro_2.11-4.0.0.jar \
+  gs://octranspo-190317-spark-on-k8s/jars/github-insights-1.0-SNAPSHOT-jar-with-dependencies.jar \
+  octranspo-190317 spark_on_k8s octranspo-190317-spark-on-k8s --usesample

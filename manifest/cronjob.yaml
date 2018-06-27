@@ -1,0 +1,39 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: octranspo
+spec:
+  schedule: "*/1 0,7-23 * * *"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: argo-submit
+            image: argoproj/argocli:v2.1.0
+            args: ["argo submit https://raw.githubusercontent.com/solackerman/octranspo/master/manifests/wait-times.yaml"]
+          restartPolicy: OnFailure
+
+
+# Create CronJob that triggers argo WF
+# convert to octranspo-spark (a scala thing)
+# v3: The WF runs octranspo-spark, followed by analysis bq of actual time bus arrived
+
+
+
+# Analysis
+
+# PySpark
+# spark needs python support on k8 (spark 2.4)
+#
+# Big Query
+# The PySpark and bigquery don't have a great connector
+# https://cloud.google.com/dataproc/docs/tutorials/bigquery-connector-spark-example
+# spotify made an integration only for scala spark
+# someone else made a janky-thing
+
+# Argo
+# a proper spark CRD would be easier/more idiomatic than `spark-submit`
+# argo needs triggers (in the idea phase? 6months)
+# argo UI is good, but not geared to work with the number of jobs we run
