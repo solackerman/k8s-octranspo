@@ -1,23 +1,24 @@
 apiVersion: "sparkoperator.k8s.io/v1alpha1"
-kind: SparkApplication
+kind: ScheduledSparkApplication
 metadata:
-  name: spark-pi
+  name: spark-pi-scheduled
   namespace: default
 spec:
-  type: Scala
-  mode: cluster
-  image: "gcr.io/ynli-k8s/spark:v2.3.0"
-  mainClass: org.apache.spark.examples.SparkPi
-  mainApplicationFile: "local:///opt/spark/examples/jars/spark-examples_2.11-2.3.0.jar"
-  sparkConf:
-    "spark.kubernetes.submission.waitAppCompletion": true
-  driver:
-    cores: 0.1
-    coreLimit: "200m"
-    memory: "512m"
-    serviceAccount: spark
-  executor:
-    cores: 1
-    instances: 1
-    memory: "512m"
-  restartPolicy: Never
+  schedule: "@every 5m"
+  concurrencyPolicy: Allow
+  template:
+    type: Scala
+    mode: cluster
+    image: "gcr.io/ynli-k8s/spark:v2.3.0"
+    mainClass: org.apache.spark.examples.SparkPi
+    mainApplicationFile: "local:///opt/spark/examples/jars/spark-examples_2.11-2.3.0.jar"
+    driver:
+      cores: 0.1
+      coreLimit: "200m"
+      memory: "512m"
+      serviceAccount: spark
+    executor:
+      cores: 1
+      instances: 1
+      memory: "512m"
+    restartPolicy: Never
