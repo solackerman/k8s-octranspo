@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
-  name: octranspo
+  name: wait-times
 spec:
   entrypoint: octranspo
   templates:
@@ -9,8 +9,8 @@ spec:
     steps:
     - - name: next-bus-update
         template: next-bus-update
-    - - name: spark-pi
-        template: spark-pi-cmd
+    - - name: github-insights
+        template: github-insights
 
   - name: next-bus-update
     container:
@@ -36,13 +36,3 @@ spec:
           gs://octranspo-190317-spark-on-k8s/jars/github-insights-1.0-SNAPSHOT-jar-with-dependencies.jar
           octranspo-190317 spark_on_k8s octranspo-190317-spark-on-k8s --usesample
       "]
-
-
-spark-submit \
-  --properties-file properties \
-  --deploy-mode cluster \
-  --class spark.bigquery.example.github.NeedingHelpGoPackageFinder \
-  --master k8s://https://104.197.141.161:443 \
-  --jars http://central.maven.org/maven2/com/databricks/spark-avro_2.11/4.0.0/spark-avro_2.11-4.0.0.jar \
-  gs://octranspo-190317-spark-on-k8s/jars/github-insights-1.0-SNAPSHOT-jar-with-dependencies.jar \
-  octranspo-190317 spark_on_k8s octranspo-190317-spark-on-k8s --usesample
